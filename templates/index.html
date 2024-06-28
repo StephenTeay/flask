@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .task-form {
+            max-width: 600px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .task-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .task-item {
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4 mb-4">To-Do List App</h1>
+
+        <!-- Add Task Form -->
+        <div class="task-form">
+            <form action="/add_task" method="post">
+                <div class="form-group">
+                    <label for="task_name">Task Name:</label>
+                    <input type="text" class="form-control" id="task_name" name="task_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="task_description">Task Description:</label>
+                    <textarea class="form-control" id="task_description" name="task_description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task_priority">Priority:</label>
+                    <select class="form-control" id="task_priority" name="task_priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Task</button>
+            </form>
+        </div>
+
+        <!-- Tasks List -->
+        <h2>Tasks</h2>
+        <ul class="task-list">
+            {% for task, details in tasks.items() %}
+                <li class="task-item">
+                    <strong>{{ task }}</strong>: {{ details.description }}
+                    <br>
+                    <span class="badge badge-{{ details.priority }}">{{ details.priority }}</span>
+                    <span class="badge badge-info">{{ details.status }}</span>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" role="progressbar" style="width: {{ details.progress }}%;" aria-valuenow="{{ details.progress }}" aria-valuemin="0" aria-valuemax="100">{{ details.progress }}%</div>
+                    </div>
+                    <form action="/update_task/{{ task }}" method="post" class="mt-2">
+                        <div class="form-group">
+                            <label for="task_status_{{ task }}">Status:</label>
+                            <select class="form-control" id="task_status_{{ task }}" name="task_status">
+                                <option value="not_started" {% if details.status == 'not_started' %}selected{% endif %}>Not Started</option>
+                                <option value="in_progress" {% if details.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                <option value="completed" {% if details.status == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task_progress_{{ task }}">Progress (%):</label>
+                            <input type="number" class="form-control" id="task_progress_{{ task }}" name="task_progress" min="0" max="100" value="{{ details.progress }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Update Task</button>
+                    </form>
+                    <form action="/delete_task/{{ task }}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger delete-btn">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+            {% if tasks|length == 0 %}
+                <li class="task-item">No tasks added yet.</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Bootstrap JS (Optional, for Bootstrap components) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
